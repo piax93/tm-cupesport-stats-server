@@ -1,0 +1,4 @@
+mypy
+pre-commit
+requirements-tools
+setuptools<82.0.0
