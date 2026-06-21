@@ -3,9 +3,14 @@ from __future__ import annotations
 import os
 import tempfile
 
-from sqlalchemy import ForeignKey, String, UniqueConstraint, create_engine
+from sqlalchemy import ForeignKey
+from sqlalchemy import String
+from sqlalchemy import create_engine
 from sqlalchemy.exc import OperationalError
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker
+from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.orm import Mapped
+from sqlalchemy.orm import mapped_column
+from sqlalchemy.orm import sessionmaker
 
 
 class Base(DeclarativeBase):

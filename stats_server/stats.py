@@ -3,8 +3,12 @@ from __future__ import annotations
 from sqlalchemy import select
 from sqlalchemy.dialects.sqlite import insert as sqlite_upsert
 
-from stats_server.database import Player, PlayerRecord, TournamentRecord, session
-from stats_server.types import PlayerStats, TournamentStats
+from stats_server.database import Player
+from stats_server.database import PlayerRecord
+from stats_server.database import TournamentRecord
+from stats_server.database import session
+from stats_server.types import PlayerStats
+from stats_server.types import TournamentStats
 
 
 def update_stats(compention_id: str, data: TournamentStats) -> None:

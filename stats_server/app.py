@@ -2,9 +2,12 @@ from __future__ import annotations
 
 import os
 
-from flask import Flask, abort, request
+from flask import Flask
+from flask import abort
+from flask import request
 
-from stats_server.stats import fetch_stats, update_stats
+from stats_server.stats import fetch_stats
+from stats_server.stats import update_stats
 
 app = Flask(__name__)
 auth_secret = os.getenv("AUTH_SECRET")
