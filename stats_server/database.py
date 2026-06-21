@@ -1,13 +1,11 @@
 from __future__ import annotations
 
-from sqlalchemy import String
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.orm import DeclarativeBase
-from sqlalchemy.orm import Mapped
-from sqlalchemy.orm import mapped_column
-from sqlalchemy import ForeignKey
-from sqlalchemy import UniqueConstraint
+import os
+import tempfile
+
+from sqlalchemy import ForeignKey, String, UniqueConstraint, create_engine
+from sqlalchemy.exc import OperationalError
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker
 
 
 class Base(DeclarativeBase):
@@ -54,6 +52,13 @@ class TournamentRecord(Base):
     player_id: Mapped[str] = mapped_column(ForeignKey("player_records.player_id"))
 
 
-engine = create_engine("sqlite://")
+engine = create_engine(
+    f"sqlite:///{os.path.join(tempfile.gettempdir(), 'cupesport_stats.sqlite')}",
+)
 session = sessionmaker(engine)
-Base.metadata.create_all(engine)
+
+try:
+    Base.metadata.create_all(engine)
+except OperationalError as e:
+    if "already exists" not in str(e):
+        raise
