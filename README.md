@@ -1,6 +1,9 @@
 # CupEsport Stats Server
 API server compatible with the CupEsport Trackmania game mode.
 
+> [!NOTE]
+> Work in progress, not tested, probably does not work properly.
+
 ### How-to run
 The easiest way to run this by using the container image available in Dockerhub:
 ```bash
