@@ -19,14 +19,14 @@ def stats():
         abort(401)
     if request.method == "POST":
         update_stats(
-            compention_id=request.args.get("competitionUid", ""),
+            competition_id=request.args.get("competitionUid", ""),
             data=request.get_json(),
         )
         return {"status": "ok"}
     elif request.method == "GET":
         return fetch_stats(
-            compention_id=request.args["competitionUid"],
-            players=request.args["player"].split(","),
-            maps=request.args["mapUid"].split(","),
+            competition_id=request.args["competitionUid"],
+            players=request.args["player[]"].split(","),
+            maps=request.args["mapUid[]"].split(","),
         )
     abort(400)

@@ -11,16 +11,16 @@ from stats_server.types import PlayerStats
 from stats_server.types import TournamentStats
 
 
-def update_stats(compention_id: str, data: TournamentStats) -> None:
-    compention_id = compention_id or data["competitionUid"]
+def update_stats(competition_id: str, data: TournamentStats) -> None:
+    competition_id = competition_id or data["competitionUid"]
     with session.begin() as s:
         stmt = sqlite_upsert(Player).values(
             [
                 dict(
-                    compention_id=compention_id,
+                    competition_id=competition_id,
                     player_id=player_id,
                     top1=stats["top1"],
-                    cumucumulated_ranks=stats["cumulatedRanks"],
+                    cumulated_ranks=stats["cumulatedRanks"],
                     crashes=stats["crashes"],
                     nruns=stats["numberOfRuns"],
                 )
@@ -29,14 +29,12 @@ def update_stats(compention_id: str, data: TournamentStats) -> None:
         )
         stmt = stmt.on_conflict_do_update(
             index_elements=[
-                Player.top1,
-                Player.cumulated_ranks,
-                Player.crashes,
-                Player.nruns,
+                Player.competition_id,
+                Player.player_id,
             ],
             set_=dict(
                 top1=stmt.excluded.top1,
-                cumucumulated_ranks=stmt.excluded.cumucumulated_ranks,
+                cumulated_ranks=stmt.excluded.cumulated_ranks,
                 crashes=stmt.excluded.crashes,
                 nruns=stmt.excluded.nruns,
             ),
@@ -45,7 +43,7 @@ def update_stats(compention_id: str, data: TournamentStats) -> None:
         stmt = sqlite_upsert(PlayerRecord).values(
             [
                 dict(
-                    compention_id=compention_id,
+                    competition_id=competition_id,
                     player_id=player_id,
                     map_id=map_id,
                     time=lap_time,
@@ -55,14 +53,18 @@ def update_stats(compention_id: str, data: TournamentStats) -> None:
             ],
         )
         stmt = stmt.on_conflict_do_update(
-            index_elements=[PlayerRecord.time],
+            index_elements=[
+                PlayerRecord.competition_id,
+                PlayerRecord.player_id,
+                PlayerRecord.map_id,
+            ],
             set_=dict(time=stmt.excluded.time),
         )
         s.execute(stmt)
         stmt = sqlite_upsert(TournamentRecord).values(
             [
                 dict(
-                    compention_id=compention_id,
+                    competition_id=competition_id,
                     map_id=map_id,
                     player_id=record["webServicesUserId"],
                 )
@@ -70,24 +72,31 @@ def update_stats(compention_id: str, data: TournamentStats) -> None:
             ],
         )
         stmt = stmt.on_conflict_do_update(
-            index_elements=[TournamentRecord.player_id],
-            set_=dict(time=stmt.excluded.player_id),
+            index_elements=[
+                TournamentRecord.competition_id,
+                TournamentRecord.map_id,
+            ],
+            set_=dict(player_id=stmt.excluded.player_id),
         )
         s.execute(stmt)
 
 
 def fetch_stats(
-    compention_id: str,
+    competition_id: str,
     maps: list[str],
     players: list[str],
 ) -> TournamentStats:
     with session.begin() as s:
         player_stats: dict[str, PlayerStats] = {}
         for row in s.execute(
-            select(Player, PlayerRecord).where(
-                Player.player_id == PlayerRecord.player_id,
-                Player.competition_id == PlayerRecord.competition_id,
-                Player.competition_id == compention_id,
+            select(Player, PlayerRecord)
+            .join(
+                PlayerRecord,
+                Player.player_id == PlayerRecord.player_id
+                and Player.competition_id == PlayerRecord.competition_id,
+            )
+            .where(
+                Player.competition_id == competition_id,
                 Player.player_id.in_(players),
                 PlayerRecord.map_id.in_(maps),
             ),
@@ -106,15 +115,23 @@ def fetch_stats(
                     "personalBests": {record.map_id: record.time},
                 }
         tournament_records = s.execute(
-            select(TournamentRecord.map_id, PlayerRecord.time).where(
-                TournamentRecord.player_id == PlayerRecord.player_id,
-                TournamentRecord.competition_id == PlayerRecord.competition_id,
-                Player.competition_id == compention_id,
+            select(
+                TournamentRecord.map_id,
+                TournamentRecord.player_id,
+                PlayerRecord.time,
+            )
+            .join(
+                PlayerRecord,
+                TournamentRecord.player_id == PlayerRecord.player_id
+                and TournamentRecord.competition_id == PlayerRecord.competition_id,
+            )
+            .where(
+                PlayerRecord.competition_id == competition_id,
                 TournamentRecord.map_id.in_(maps),
             ),
         ).all()
         return {
-            "competitionUid": compention_id,
+            "competitionUid": competition_id,
             "playersStats": player_stats,
             "tournamentRecords": {
                 row.map_id: {
