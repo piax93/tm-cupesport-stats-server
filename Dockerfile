@@ -9,6 +9,9 @@ COPY    stats_server ./stats_server
 
 RUN     mkdir -p /.gunicorn && chown nobody:nogroup /.gunicorn
 
+VOLUME  [ "/data" ]
+ENV     DATABASE_DIRECTORY=/data
+
 USER    nobody
 EXPOSE  8080
 CMD     [ "python", "-m", "gunicorn", "--workers", "4", "--bind", "0.0.0.0:8080", "stats_server.app:app" ]

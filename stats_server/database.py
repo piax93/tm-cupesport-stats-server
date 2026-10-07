@@ -57,9 +57,8 @@ class TournamentRecord(Base):
     player_id: Mapped[str] = mapped_column(ForeignKey("player_records.player_id"))
 
 
-engine = create_engine(
-    f"sqlite:///{os.path.join(tempfile.gettempdir(), 'cupesport_stats.sqlite')}",
-)
+db_dir = os.getenv("DATABASE_DIRECTORY") or tempfile.gettempdir()
+engine = create_engine(f"sqlite:///{os.path.join(db_dir, 'cupesport_stats.sqlite')}")
 session = sessionmaker(engine)
 
 try:
