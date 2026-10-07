@@ -9,8 +9,9 @@ COPY    stats_server ./stats_server
 
 RUN     mkdir -p /.gunicorn && chown nobody:nogroup /.gunicorn
 
-VOLUME  [ "/data" ]
+RUN     mkdir -p /data && chmod a+w /data
 ENV     DATABASE_DIRECTORY=/data
+VOLUME  /data
 
 USER    nobody
 EXPOSE  8080
