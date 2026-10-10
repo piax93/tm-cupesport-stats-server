@@ -9,6 +9,6 @@ docker run --rm -e AUTH_SECRET=... -p 8080:8080 piax93/tm-cupesport-stats-server
 
 ### How-to connect
 When using the `TM_CupEsport_Online.Script.txt` mode, you can set the following to collect tournament statistics:
-* `S_TournamentStatsApiUrl`: URL where the stats server is being hosted;
+* `S_TournamentStatsApiUrl`: URL where the stats server is being hosted (`http://<some IP>:<some port>/stats`);
 * `S_TournamentStatsApiCompetitionUid`: unique identifier for the competition;
 * `S_TournamentStatsApiAuthorizationHeader`: authentication secret set for the API server.
