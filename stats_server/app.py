@@ -26,7 +26,7 @@ def stats():
     elif request.method == "GET":
         return fetch_stats(
             competition_id=request.args["competitionUid"],
-            players=request.args["player[]"].split(","),
-            maps=request.args["mapUid[]"].split(","),
+            players=request.args.getlist("player[]"),
+            maps=request.args.getlist("mapUid[]"),
         )
     abort(400)
