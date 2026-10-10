@@ -15,4 +15,7 @@ VOLUME  /data
 
 USER    nobody
 EXPOSE  8080
-CMD     [ "python", "-m", "gunicorn", "--workers", "4", "--bind", "0.0.0.0:8080", "stats_server.app:app" ]
+
+ENV     GUNICORN_CMD_ARGS="--workers=4 --bind=0.0.0.0:8080 --access-logfile=-"
+
+CMD     [ "python", "-m", "gunicorn", "stats_server.app:app" ]
