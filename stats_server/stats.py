@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from sqlalchemy import and_
 from sqlalchemy import select
 from sqlalchemy.dialects.sqlite import insert as sqlite_upsert
 
@@ -92,8 +93,10 @@ def fetch_stats(
             select(Player, PlayerRecord)
             .join(
                 PlayerRecord,
-                Player.player_id == PlayerRecord.player_id
-                and Player.competition_id == PlayerRecord.competition_id,
+                and_(
+                    Player.player_id == PlayerRecord.player_id,
+                    Player.competition_id == PlayerRecord.competition_id,
+                ),
             )
             .where(
                 Player.competition_id == competition_id,
@@ -122,8 +125,11 @@ def fetch_stats(
             )
             .join(
                 PlayerRecord,
-                TournamentRecord.player_id == PlayerRecord.player_id
-                and TournamentRecord.competition_id == PlayerRecord.competition_id,
+                and_(
+                    TournamentRecord.player_id == PlayerRecord.player_id,
+                    TournamentRecord.competition_id == PlayerRecord.competition_id,
+                    TournamentRecord.map_id == PlayerRecord.map_id,
+                ),
             )
             .where(
                 PlayerRecord.competition_id == competition_id,
